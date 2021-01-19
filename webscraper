@@ -5,7 +5,7 @@ website2_file="website2.html"
 website3_file="website3.html"
 link_file="links.html"
 
-wget $website --no-verbose --output-document=$website_file  # Trolla, continua a pushare out su console contro la nostra volonta'
+wget -e use_proxy=yes -e http_proxy=127.0.0.1:9050 $website --output-document=$website_file  # Trolla, continua a pushare out su console contro la nostra volonta'
 grep -Po "https:\/\/streamcrypt.net\/streamz.cc\/\w*" $website_file > $link_file # Regex per trovare i singoli link dei file (pre-download)
 
 # link=$(awk '{print $1;exit}' $link_file) # Lo teniamo perche' non si sa mai
@@ -18,32 +18,31 @@ for Line in $(cat $link_file)
 do
     echo "Opening with chromium: $Line" # Non serve a niente ma piace a Lore
 
-    chromium  --headless --disable-gpu --dump-dom $Line > $website2_file 2>&1 # Solo dio sa come funziona questa cosa
+    chromium --proxy-server="socks5://127.0.0.1:9050" --headless --disable-gpu --dump-dom $Line > $website2_file #2>&1 # Solo dio sa come funziona questa cosa
     
     grep -Po "https:\/\/streamz.vg\/getlink-\w+\.dll" $website2_file > $website3_file # Regex per trovare il link di download (anche JS!)
-    
-    echo "Var: $(cat $website3_file)"
     
     # QUESTO WHILE DOVREBBE PERMETTE DI RISOLVERE MANUALMENTE I CAPTCHA MA NON VA UNA SEGA
     var=$(cat $website3_file)
 
     while [ -z $var ]
     do
-       echo "Please resolve captcha"
+      # echo "Please resolve captcha"
+						# SOLUZIONE MANUALE
+      # read -p "Press enter to continue"
 
-       read -p "Press enter to continue"
 
-       chromium  --headless --disable-gpu --dump-dom $Line > $website2_file 2>&1
+       echo "Siamo nel ciclo"
+       #sudo pkill tor
+       #sudo tor
+       chromium --proxy-server="socks5://127.0.0.1:9050" --headless --disable-gpu --dump-dom $Line > $website2_file #2>&1
        grep -Po "https:\/\/streamz.vg\/getlink-\w+\.dll" $website2_file > $website3_file
-       break
     done
 
-    wget $(cat $website3_file) --output-document="EP${i}.mp4" # Scarica il file
+    wget -e use_proxy=yes -e http_proxy=127.0.0.1:9050 $(cat $website3_file) --output-document="EP${i}.mp4" # Scarica il file
     i=$((i+1)) # Incrementa numero episodio
 
     rm $website2_file
     rm $website3_file
     
-    #mv *.dll "EP${i}.mp4" # Numera i file
-    #i=$((i+1)) # Incrementa numero episodio
 done
