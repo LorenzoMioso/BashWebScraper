@@ -1,26 +1,26 @@
 #!/bin/sh
-website="https://toonitalia.pro/le-nuove-avventure-di-lupin-iii/"
+website="https://toonitalia.pro/le-nuove-avventure-di-lupin-iii/" # Modifica questo link e le regex per riutilizzare questo script
 website_file="website.html"
 website2_file="website2.html"
 website3_file="website3.html"
 link_file="links.html"
 
-wget $website --no-verbose --output-document=$website_file 
-grep -Po "https:\/\/streamcrypt.net\/streamz.cc\/\w*" $website_file > $link_file
+wget $website --no-verbose --output-document=$website_file  # Trolla, continua a pushare out su console contro la nostra volonta'
+grep -Po "https:\/\/streamcrypt.net\/streamz.cc\/\w*" $website_file > $link_file # Regex per trovare i singoli link dei file (pre-download)
 
-# link=$(awk '{print $1;exit}' $link_file)
+# link=$(awk '{print $1;exit}' $link_file) # Lo teniamo perche' non si sa mai
 
 for Line in $(cat $link_file)
 do
-    echo "Opening with chromium: $Line"
+    echo "Opening with chromium: $Line" # Non serve a niente ma piace a Lore
 
-    chromium  --headless --disable-gpu --dump-dom $Line > $website2_file
+    chromium  --headless --disable-gpu --dump-dom $Line > $website2_file # Solo dio sa come funziona questa cosa
     
-    grep -Po "https:\/\/streamz.vg\/getlink-\w+\.dll" $website2_file > $website3_file
+    grep -Po "https:\/\/streamz.vg\/getlink-\w+\.dll" $website2_file > $website3_file # Regex per trovare il link di download (anche JS!)
     
     wget $(cat $website3_file)
 
-    rm $website_file
+    rm $website_file # Letteralmente cicli di clock sprecati
     rm $website2_file
     rm $website3_file
 
