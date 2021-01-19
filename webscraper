@@ -18,7 +18,7 @@ for Line in $(cat $link_file)
 do
     echo "Opening with chromium: $Line" # Non serve a niente ma piace a Lore
 
-    chromium  --headless --disable-gpu --dump-dom $Line > $website2_file # Solo dio sa come funziona questa cosa
+    chromium  --headless --disable-gpu --dump-dom $Line > $website2_file 2>&1 # Solo dio sa come funziona questa cosa
     
     grep -Po "https:\/\/streamz.vg\/getlink-\w+\.dll" $website2_file > $website3_file # Regex per trovare il link di download (anche JS!)
     
@@ -26,24 +26,24 @@ do
     
     # QUESTO WHILE DOVREBBE PERMETTE DI RISOLVERE MANUALMENTE I CAPTCHA MA NON VA UNA SEGA
     var=$(cat $website3_file)
-    while 1
+
+    while [ -z $var ]
     do
-    if [-z "$var"]
-       then
        echo "Please resolve captcha"
-       sleep 30
-       chromium  --headless --disable-gpu --dump-dom $Line > $website2_file
+
+       read -p "Press enter to continue"
+
+       chromium  --headless --disable-gpu --dump-dom $Line > $website2_file 2>&1
        grep -Po "https:\/\/streamz.vg\/getlink-\w+\.dll" $website2_file > $website3_file
-       else
        break
-    fi
     done
 
-    wget $(cat $website3_file) # Scarica il file
+    wget $(cat $website3_file) --output-document="EP${i}.mp4" # Scarica il file
+    i=$((i+1)) # Incrementa numero episodio
 
     rm $website2_file
     rm $website3_file
     
-    mv *.dll "EP${i}.mp4" # Numera i file
-    i=$((i+1)) # Incrementa numero episodio
+    #mv *.dll "EP${i}.mp4" # Numera i file
+    #i=$((i+1)) # Incrementa numero episodio
 done
