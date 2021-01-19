@@ -23,10 +23,12 @@ do
     grep -Po "https:\/\/streamz.vg\/getlink-\w+\.dll" $website2_file > $website3_file # Regex per trovare il link di download (anche JS!)
     
     echo "Var: $(cat $website3_file)"
+    
+    # QUESTO WHILE DOVREBBE PERMETTE DI RISOLVERE MANUALMENTE I CAPTCHA MA NON VA UNA SEGA
     var=$(cat $website3_file)
     while 1
     do
-    if [-z "$var"] # Permette di risolvere manualmente in captcha quando il sito blocca gli accessi
+    if [-z "$var"]
        then
        echo "Please resolve captcha"
        sleep 30
@@ -37,10 +39,11 @@ do
     fi
     done
 
-    wget $(cat $website3_file)
+    wget $(cat $website3_file) # Scarica il file
 
     rm $website2_file
     rm $website3_file
-    mv *.dll "EP${i}.mp4"
-    i=$((i+1))
+    
+    mv *.dll "EP${i}.mp4" # Numera i file
+    i=$((i+1)) # Incrementa numero episodio
 done
