@@ -1,0 +1,27 @@
+#!/bin/sh
+website="https://toonitalia.pro/le-nuove-avventure-di-lupin-iii/"
+website_file="website.html"
+website2_file="website2.html"
+website3_file="website3.html"
+link_file="links.html"
+
+wget $website --no-verbose --output-document=$website_file 
+grep -Po "https:\/\/streamcrypt.net\/streamz.cc\/\w*" $website_file > $link_file
+
+# link=$(awk '{print $1;exit}' $link_file)
+
+for Line in $(cat $link_file)
+do
+    echo "Opening with chromium: $Line"
+
+    chromium  --headless --disable-gpu --dump-dom $Line > $website2_file
+    
+    grep -Po "https:\/\/streamz.vg\/getlink-\w+\.dll" $website2_file > $website3_file
+    
+    wget $(cat $website3_file)
+
+    rm $website_file
+    rm $website2_file
+    rm $website3_file
+
+done
