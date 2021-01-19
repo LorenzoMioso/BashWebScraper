@@ -42,5 +42,5 @@ do
     rm $website2_file
     rm $website3_file
     mv *.dll "EP${i}.mp4"
-    i=i+1
+    i=$((i+1))
 done
