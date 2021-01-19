@@ -10,6 +10,10 @@ grep -Po "https:\/\/streamcrypt.net\/streamz.cc\/\w*" $website_file > $link_file
 
 # link=$(awk '{print $1;exit}' $link_file) # Lo teniamo perche' non si sa mai
 
+rm $website_file
+
+i=1
+
 for Line in $(cat $link_file)
 do
     echo "Opening with chromium: $Line" # Non serve a niente ma piace a Lore
@@ -18,10 +22,25 @@ do
     
     grep -Po "https:\/\/streamz.vg\/getlink-\w+\.dll" $website2_file > $website3_file # Regex per trovare il link di download (anche JS!)
     
+    echo "Var: $(cat $website3_file)"
+    var=$(cat $website3_file)
+    while 1
+    do
+    if [-z "$var"] # Permette di risolvere manualmente in captcha quando il sito blocca gli accessi
+       then
+       echo "Please resolve captcha"
+       sleep 30
+       chromium  --headless --disable-gpu --dump-dom $Line > $website2_file
+       grep -Po "https:\/\/streamz.vg\/getlink-\w+\.dll" $website2_file > $website3_file
+       else
+       break
+    fi
+    done
+
     wget $(cat $website3_file)
 
-    rm $website_file # Letteralmente cicli di clock sprecati
     rm $website2_file
     rm $website3_file
-
+    mv *.dll "EP${i}.mp4"
+    i=i+1
 done
