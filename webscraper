@@ -12,7 +12,10 @@ grep -Po "https:\/\/streamcrypt.net\/streamz.cc\/\w*" $website_file > $link_file
 
 rm $website_file
 
-i=1
+read -p "Number of episode alredy downloaded:" previous_ep # Per evitare di scaricare tutti gli episodi in una sola volta e riprendere
+echo $previous_ep
+sed -i /$previous_ep/d links.html # Cancella le prime n righe dal file dei link di download
+i=$((previous_ep+1))
 
 for Line in $(cat $link_file)
 do
