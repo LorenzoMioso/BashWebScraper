@@ -33,6 +33,7 @@ do
 
        chromium --headless --disable-gpu --dump-dom $Line > $website2_file 2>&1
        grep -Po "https:\/\/streamz.vg\/getlink-\w+\.dll" $website2_file > $website3_file
+       var=$(cat $website3_file)
     done
 
     wget $(cat $website3_file) --output-document="EP${i}.mp4" # Scarica il file
