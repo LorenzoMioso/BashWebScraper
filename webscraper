@@ -1,31 +1,43 @@
-#!/bin/sh
+#!/bin/bash
 website="https://toonitalia.pro/le-nuove-avventure-di-lupin-iii/" # Modifica questo link e le regex per riutilizzare questo script
 website_file="website.html"
 website2_file="website2.html"
 website3_file="website3.html"
 link_file="links.html"
 
-wget --no-verbose $website --output-document=$website_file  # Trolla, continua a pushare out su console contro la nostra volonta'
+wget --no-verbose $website --output-document=$website_file
 grep -Po "https:\/\/streamcrypt.net\/streamz.cc\/\w*" $website_file > $link_file # Regex per trovare i singoli link dei file (pre-download)
-
-# link=$(awk '{print $1;exit}' $link_file) # Lo teniamo perche' non si sa mai
 
 rm $website_file
 
-read -p "Number of episode alredy downloaded:" previous_ep # Per evitare di scaricare tutti gli episodi in una sola volta e riprendere
-echo $previous_ep
-sed -i /$previous_ep/d links.html # Cancella le prime n righe dal file dei link di download
+read -p "Number of episode alredy downloaded:" previous_ep # Per evitare di scaricare tutti gli episodi in una sola volta e riprendere da un certo punto
+
+for (( i=0; i<$previous_ep; i++ ))
+do
+    sed -i '1d' $link_file # Cancella le righe "gia' scaricate"
+done
+
+
+
+j=0
+for Line in $(cat $link_file)
+do
+    j=$((j+1))  # Conta gli episodi rimanenti
+done
+echo "Ci sono $j episodi rimanenti"
+
+
 i=$((previous_ep+1))
 
 for Line in $(cat $link_file)
 do
-    echo "Opening with chromium: $Line" # Non serve a niente ma piace a Lore
+    echo "Opening with chromium: $Line"
 
-    chromium --headless --disable-gpu --dump-dom $Line > $website2_file 2>&1 # Solo dio sa come funziona questa cosa
+    chromium --headless --disable-gpu --dump-dom $Line > $website2_file 2>&1
     
     grep -Po "https:\/\/streamz.vg\/getlink-\w+\.dll" $website2_file > $website3_file # Regex per trovare il link di download (anche JS!)
     
-    # QUESTO WHILE DOVREBBE PERMETTE DI RISOLVERE MANUALMENTE I CAPTCHA MA NON VA UNA SEGA
+    # QUESTO WHILE DOVREBBE PERMETTE DI RISOLVERE MANUALMENTE I CAPTCHA MA FA SCHIFO, SI ATTENDONO NUOVE SOLUZIONI
     var=$(cat $website3_file)
 
     while [ -z $var ]
